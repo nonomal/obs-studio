@@ -164,7 +164,15 @@ Encoder Definition Structure (obs_encoder_info)
 
    - **OBS_ENCODER_CAP_DEPRECATED** - Encoder is deprecated
    - **OBS_ENCODER_CAP_ROI** - Encoder supports region of interest feature
+   - **OBS_ENCODER_CAP_SCALING** - Encoder implements its own scaling logic,
+                                   desiring to receive unscaled frames
 
+.. member:: size_t (*get_priming_samples)(void *data)
+
+   Returns the number of priming samples that must be skipped for correct playback for audio produced by this encoder.
+   Only required for lossy codecs such as AAC or Opus.
+
+   :return: Number of samples
 
 Encoder Packet Structure (encoder_packet)
 -----------------------------------------
@@ -273,6 +281,8 @@ Encoder Region of Interest Structure (obs_encoder_roi)
 
    Encoder region of interest structure.
 
+   .. versionadded:: 30.1
+
 .. member:: uint32_t top
             uint32_t bottom
             uint32_t left
@@ -344,15 +354,6 @@ General Encoder Functions
                             if none
    :return:                 A reference to the newly created encoder, or
                             *NULL* if failed
-
----------------------
-
-.. function:: void obs_encoder_addref(obs_encoder_t *encoder)
-
-   Adds a reference to an encoder.
-
-.. deprecated:: 27.2.0
-   Use :c:func:`obs_encoder_get_ref()` instead.
 
 ---------------------
 
@@ -445,6 +446,12 @@ General Encoder Functions
 .. function:: size_t obs_encoder_get_frame_size(const obs_encoder_t *encoder)
 
    :return: The frame size of the audio packet
+
+---------------------
+
+.. function:: size_t obs_encoder_get_mixer_index(const obs_encoder_t *encoder)
+
+   :return: The mixer index for the audio track which is encoded by the encoder
 
 ---------------------
 
@@ -549,17 +556,23 @@ General Encoder Functions
 
    :return: *true* if adding succeeded, *false* otherwise.
 
+   .. versionadded:: 30.1
+
 ---------------------
 
 .. function:: bool obs_encoder_has_roi(obs_encoder_t *encoder)
 
    :return: *true* if encoder has ROI regions set, *false* otherwise.
 
+   .. versionadded:: 30.1
+
 ---------------------
 
 .. function:: void obs_encoder_clear_roi(obs_encoder_t *encoder)
 
     Clear region of interest list, if any.
+
+   .. versionadded:: 30.1
 
 ---------------------
 
@@ -569,6 +582,8 @@ General Encoder Functions
 
     **Note:** If the encoder has scaling enabled the struct passed to the callback will be scaled accordingly.
 
+   .. versionadded:: 30.1
+
 ---------------------
 
 .. function:: uint32_t obs_encoder_get_roi_increment(const obs_encoder_t *encoder)
@@ -577,8 +592,20 @@ General Encoder Functions
 
    :return: Increment/revision of ROI list
 
+   .. versionadded:: 30.1
+
 ---------------------
 
+.. function:: uint32_t obs_encoder_get_priming_samples(const obs_encoder_t *encoder)
+
+   Gets the number of samples that shall be skipped when playing back the encoded audio.
+   Commonly referred to as "encoder delay" or "priming samples" in AAC/Opus.
+
+   :return: Number of priming samples
+
+   .. versionadded:: 32.1
+
+---------------------
 
 Functions used by encoders
 --------------------------

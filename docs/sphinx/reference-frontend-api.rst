@@ -150,6 +150,10 @@ Structures/Enumerations
 
      Triggered when the replay buffer has fully stopped.
 
+   - **OBS_FRONTEND_EVENT_REPLAY_BUFFER_SAVING**
+
+     Triggered when the replay buffer is saving.
+
    - **OBS_FRONTEND_EVENT_REPLAY_BUFFER_SAVED**
 
      Triggered when the replay buffer has been saved.
@@ -462,23 +466,16 @@ Functions
 
 ---------------------------------------
 
-.. function:: void* obs_frontend_add_dock(void *dock)
-
-   Adds a QDockWidget to the UI's Docks menu.
-
-   :param dock: QDockWidget to add/create
-   :return: A pointer to the added QAction
-
-.. deprecated:: 30.0
-   Prefer :c:func:`obs_frontend_add_dock_by_id()` or
-   :c:func:`obs_frontend_add_custom_qdock()` instead.
-
----------------------------------------
-
 .. function:: bool obs_frontend_add_dock_by_id(const char *id, const char *title, void *widget)
 
    Adds a dock with the widget to the UI with a toggle in the Docks
    menu.
+
+   When the dock is closed, a custom QEvent of type `QEvent::User + QEvent::Close`
+   is sent to the widget to enable it to react to the event (e.g., unload elements
+   to save resources).
+   A generic QShowEvent is already sent by default when the widget is being
+   shown (e.g., dock opened).
 
    Note: Use :c:func:`obs_frontend_remove_dock` to remove the dock
          and the id from the UI.
@@ -489,6 +486,8 @@ Functions
    :return: *true* if the dock was added, *false* if the id was already
             used
 
+   .. versionadded:: 30.0
+
 ---------------------------------------
 
 .. function:: void obs_frontend_remove_dock(const char *id)
@@ -496,6 +495,8 @@ Functions
    Removes the dock with this id from the UI.
 
    :param id: Unique identifier of the dock to remove.
+
+   .. versionadded:: 30.0
 
 ---------------------------------------
 
@@ -510,6 +511,8 @@ Functions
    :param dock: QDockWidget to add
    :return: *true* if the dock was added, *false* if the id was already
             used
+
+   .. versionadded:: 30.0
 
 ---------------------------------------
 
@@ -647,6 +650,17 @@ Functions
 
 ---------------------------------------
 
+.. function:: bool obs_frontend_recording_add_chapter(const char *name)
+
+   Asks OBS to insert a chapter marker at the current output time into the recording.
+
+   :param name: The name for the chapter, may be *NULL* to use an automatically generated name ("Unnamed <Chapter number>" or localized equivalent).
+   :return: *true* if insertion was successful, *false* if recording is inactive, paused, or if chapter insertion is not supported by the current output.
+
+   .. versionadded:: 30.2
+
+---------------------------------------
+
 .. function:: void obs_frontend_replay_buffer_start(void)
 
    Starts the replay buffer.
@@ -713,9 +727,26 @@ Functions
 
 ---------------------------------------
 
+.. deprecated:: 31.0
 .. function:: config_t *obs_frontend_get_global_config(void)
 
    :return: The config_t* associated with the global config (global.ini)
+
+---------------------------------------
+
+.. function:: config_t *obs_frontend_get_app_config(void)
+
+   :return: The config_t* associated with system-wide settings (global.ini)
+
+   .. versionadded:: 31.0
+
+---------------------------------------
+
+.. function:: config_t *obs_frontend_get_user_config(void)
+
+   :return: The config_t* associated with user settings (user.ini)
+
+   .. versionadded:: 31.0
 
 ---------------------------------------
 
@@ -932,3 +963,37 @@ Functions
                       This uses the undo action from the first and the redo action from the last action.
 
    .. versionadded:: 29.1
+
+---------------------------------------
+
+.. function:: void obs_frontend_copy_sceneitem(obs_sceneitem_t *item)
+
+   :param item: The scene item to copy
+
+   .. versionadded:: 32.2
+
+---------------------------------------
+
+.. function:: bool obs_frontend_can_paste_sceneitem(bool duplicate)
+
+   :param duplicate: Check if the copied source allows duplication.
+   :return: Whether there is a scene item copied and can be pasted
+
+   .. versionadded:: 32.2
+
+---------------------------------------
+
+.. function:: void obs_frontend_paste_sceneitem(obs_scene_t *scene, bool duplicate)
+
+   :param scene: The scene to paste on
+   :param duplicate: *true* for paste duplicate, *false* for paste reference
+
+   .. versionadded:: 32.2
+
+---------------------------------------
+
+.. function:: bool obs_frontend_is_safe_mode_enabled(void)
+
+   :return: *true* if OBS was launched in Safe Mode, *false* otherwise
+
+   .. versionadded:: 33.0

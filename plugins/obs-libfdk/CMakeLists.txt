@@ -1,10 +1,7 @@
-cmake_minimum_required(VERSION 3.22...3.25)
-
-legacy_check()
+cmake_minimum_required(VERSION 3.28...3.30)
 
 option(ENABLE_LIBFDK "Enable FDK AAC support" OFF)
 if(NOT ENABLE_LIBFDK)
-  target_disable(obs-libfdk)
   return()
 endif()
 
